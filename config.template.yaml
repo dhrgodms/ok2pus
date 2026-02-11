@@ -1,9 +1,0 @@
-servers:
-  - name: "Test1"
-    host: "192.168.0.0"
-    user: "user"
-    port: 22
-  - name: "Dev Database"
-    host: "db.example.com"
-    user: "ubuntu"
-    port: 22
