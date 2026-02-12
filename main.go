@@ -13,15 +13,14 @@ import (
 )
 
 func main() {
-
 	db := initDB()
 	defer db.Close()
 	showLogo()
 
 	for {
-		prompt := promptui.Select {
-			Label: "Select",
-			Items: []string{"1. List Hosts", "2. Add New Host", "q. Quit"},
+		prompt := promptui.Select{
+			Label:        "Select",
+			Items:        []string{"1. List Hosts", "2. Add New Host", "q. Quit"},
 			HideSelected: true,
 		}
 
@@ -47,7 +46,6 @@ func main() {
 }
 
 func addNewHostInteractive(db *sql.DB) {
-
 	validate := func(input string) error {
 		if len(strings.TrimSpace(input)) < 1 {
 			return fmt.Errorf("this field is required")
@@ -69,7 +67,7 @@ func addNewHostInteractive(db *sql.DB) {
 	port, _ := strconv.Atoi(portStr)
 
 	if alias == "" || host == "" {
-		return 
+		return
 	}
 
 	err := addHost(db, SSHHost{Alias: alias, Host: host, User: user, Port: port})
@@ -94,9 +92,9 @@ func showHostListMenu(db *sql.DB) {
 	items = append(items, "Back")
 
 	prompt := promptui.Select{
-		Label: "Select a Host",
-		Items: items,
-		Size: 5,
+		Label:        "Select a Host",
+		Items:        items,
+		Size:         5,
 		HideSelected: true,
 	}
 
@@ -111,8 +109,8 @@ func showHostListMenu(db *sql.DB) {
 
 func showActionMenu(db *sql.DB, host SSHHost) {
 	prompt := promptui.Select{
-		Label: fmt.Sprintf("Action for [%s]", host.Alias),
-		Items: []string{"connect", "edit", "delete", "Back"},
+		Label:        fmt.Sprintf("Action for [%s]", host.Alias),
+		Items:        []string{"connect", "edit", "delete", "Back"},
 		HideSelected: true,
 	}
 
@@ -123,29 +121,23 @@ func showActionMenu(db *sql.DB, host SSHHost) {
 		connectHost(host)
 	case "edit":
 		// TODO: implement
-		updateHost()
+		updateHost(host)
 		fmt.Println("Updated.")
 	case "delete":
 		confirmPrompt := promptui.Prompt{
-        Label:     fmt.Sprintf("Are you sure you want to delete [%s]?", host.Alias),
-        IsConfirm: true,
-    }
-    _, err := confirmPrompt.Run()
-    if err != nil {
-        return // 취소 시 복귀
-    }
+			Label:     fmt.Sprintf("Are you sure you want to delete [%s]?", host.Alias),
+			IsConfirm: true,
+		}
+		_, err := confirmPrompt.Run()
+		if err != nil {
+			return // 취소 시 복귀
+		}
 
-    err = deleteHost(db, host.ID)
-    if err != nil {
-        fmt.Printf("Delete failed: %v\n", err)
-    } else {
-        fmt.Println("Successfully deleted.")
-    }
+		err = deleteHost(db, host.ID)
+		if err != nil {
+			fmt.Printf("Delete failed: %v\n", err)
+		} else {
+			fmt.Println("Successfully deleted.")
+		}
 	}
-
 }
-
-
-
-
-

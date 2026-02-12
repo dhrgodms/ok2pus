@@ -51,4 +51,4 @@ func deleteHost(db *sql.DB, id int) error {
 	return nil
 }
 
-func updateHost() {}
+func updateHost(h SSHHost) {}
