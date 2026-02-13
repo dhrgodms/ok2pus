@@ -8,9 +8,18 @@ import (
 )
 
 func connectHost(h SSHHost) {
+	var cmd *exec.Cmd
+
 	dest := fmt.Sprintf("%s@%s", h.User, h.Host)
 
-	cmd := exec.Command("ssh", dest, "-p", strconv.Itoa(h.Port))
+	switch h.AuthType {
+	case "Password":
+		cmd = exec.Command("ssh", dest, "-p", strconv.Itoa(h.Port))
+	case "Public Key":
+		cmd = exec.Command("ssh", "-i", h.KeyPath, dest, "-p", strconv.Itoa(h.Port))
+	default:
+		return
+	}
 
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout

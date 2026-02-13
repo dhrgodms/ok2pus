@@ -6,21 +6,24 @@ import (
 )
 
 type SSHHost struct {
-	ID int
+	ID    int
 	Alias string
-	Host string
-	User string
-	Port int
+	Host  string
+	User  string
+	Port  int
+
+	AuthType string
+	KeyPath  string
 }
 
 func addHost(db *sql.DB, h SSHHost) error {
-	query := `INSERT INTO ssh_hosts (alias, host, user, port) VALUES (?, ?, ?, ?);`
-	_, err := db.Exec(query, h.Alias, h.Host, h.User, h.Port)
+	query := `INSERT INTO ssh_hosts (alias, host, user, port, auth_type, key_path) VALUES (?, ?, ?, ?, ?, ?);`
+	_, err := db.Exec(query, h.Alias, h.Host, h.User, h.Port, h.AuthType, h.KeyPath)
 	return err
 }
 
 func getAllHost(db *sql.DB) ([]SSHHost, error) {
-	rows, err := db.Query("SELECT id, alias, host, user, port FROM ssh_hosts")
+	rows, err := db.Query("SELECT id, alias, host, user, port, auth_type, key_path FROM ssh_hosts")
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +33,7 @@ func getAllHost(db *sql.DB) ([]SSHHost, error) {
 	var hosts []SSHHost
 	for rows.Next() {
 		var h SSHHost
-		if err := rows.Scan(&h.ID, &h.Alias, &h.Host, &h.User, &h.Port); err != nil {
+		if err := rows.Scan(&h.ID, &h.Alias, &h.Host, &h.User, &h.Port, &h.AuthType, &h.KeyPath); err != nil {
 			return nil, err
 		}
 		hosts = append(hosts, h)
@@ -52,3 +55,8 @@ func deleteHost(db *sql.DB, id int) error {
 }
 
 func updateHost(h SSHHost) {}
+
+func resetDB(db *sql.DB) error {
+	_, err := db.Exec("DELETE FROM ssh_hosts; DELETE FROM sqlite_sequence WHERE name='ssh_hosts';")
+	return err
+}
