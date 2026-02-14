@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 
@@ -20,7 +21,7 @@ func main() {
 	for {
 		prompt := promptui.Select{
 			Label:        "Select",
-			Items:        []string{"[1] List Hosts", "[2] Add New Host", "[3]. Options", "[q]. Quit"},
+			Items:        []string{"[1] List Hosts", "[2] Add New Host", "[3] Options", "[q] Quit"},
 			HideSelected: true,
 		}
 
@@ -77,7 +78,7 @@ func addNewHostInteractive(db *sql.DB) {
 	}
 
 	promptAuth := promptui.Select{
-		Label:        "Select ssh authentication method.",
+		Label:        "Select ssh authentication method",
 		Items:        []string{"[1] Password", "[2] Public Key", "[3] Back"},
 		HideSelected: true,
 	}
@@ -86,6 +87,9 @@ func addNewHostInteractive(db *sql.DB) {
 	if authErr != nil || authResult == "[3] Back" {
 		return
 	}
+
+	promptAlias := promptui.Prompt{Label: "Alias", Validate: validate}
+	alias, _ := promptAlias.Run()
 
 	var path string
 	var auth string
@@ -99,14 +103,11 @@ func addNewHostInteractive(db *sql.DB) {
 		path, _ = promptPath.Run()
 	}
 
-	promptAlias := promptui.Prompt{Label: "Alias", Validate: validate}
-	alias, _ := promptAlias.Run()
+	promptUser := promptui.Prompt{Label: "Username", Validate: validate}
+	user, _ := promptUser.Run()
 
 	promptHost := promptui.Prompt{Label: "Host Address", Validate: validate}
 	host, _ := promptHost.Run()
-
-	promptUser := promptui.Prompt{Label: "Username", Validate: validate}
-	user, _ := promptUser.Run()
 
 	promptPort := promptui.Prompt{Label: "Port", Default: "22", Validate: validate}
 	portStr, _ := promptPort.Run()
@@ -133,7 +134,7 @@ func showHostListMenu(db *sql.DB) {
 
 	var items []string
 	for _, h := range hosts {
-		items = append(items, fmt.Sprintf("[%s] %s@%s:%d", h.Alias, h.User, h.Host, h.Port))
+		items = append(items, fmt.Sprintf("[%s] %s@%s:%d (%s)", h.Alias, h.User, h.Host, h.Port, h.AuthType))
 	}
 	items = append(items, "Back")
 
@@ -167,8 +168,7 @@ func showActionMenu(db *sql.DB, host SSHHost) {
 		connectHost(host)
 	case "[2] edit":
 		// TODO: implement
-		updateHost(host)
-		fmt.Println("Updated.")
+		openEditor(db, host)
 	case "[3] delete":
 		confirmPrompt := promptui.Prompt{
 			Label:     fmt.Sprintf("Are you sure you want to delete [%s]?", host.Alias),
@@ -192,7 +192,7 @@ func showActionMenu(db *sql.DB, host SSHHost) {
 
 func resetDatabase(db *sql.DB) {
 	confirmPrompt := promptui.Prompt{
-		Label:     "Are you sure you want to RESET all data? (y/n)",
+		Label:     "Are you sure you want to RESET all data?",
 		IsConfirm: true,
 	}
 
@@ -212,7 +212,7 @@ func resetDatabase(db *sql.DB) {
 
 func dropDatabase(db *sql.DB) {
 	confirmPrompt := promptui.Prompt{
-		Label:     "Are you sure you want to DROP the database? (y/n)",
+		Label:     "Are you sure you want to DROP the database?",
 		IsConfirm: true,
 	}
 
@@ -223,4 +223,107 @@ func dropDatabase(db *sql.DB) {
 	}
 
 	dropDB(db)
+}
+
+type editFinishedMsg struct {
+	content string
+	err     error
+}
+
+func openEditor(db *sql.DB, h SSHHost) {
+	currentConfig := fmt.Sprintf("alias=%s\nhost=%s\nuser=%s\nport=%d\nauth_type=%s\nkey_path=%s", h.Alias, h.Host, h.User, h.Port, h.AuthType, h.KeyPath)
+
+	tempFile, err := os.CreateTemp("", "host-config-*.txt")
+	if err != nil {
+		fmt.Println("Failed to create a temp file. err:", err)
+		return
+	}
+	defer os.Remove(tempFile.Name())
+	tempFile.WriteString(currentConfig)
+	tempFile.Close()
+
+	editor := os.Getenv("EDITOR")
+	if editor == "" {
+		editor = "vim"
+	}
+
+	cmd := exec.Command(editor, tempFile.Name())
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	err = cmd.Run()
+	if err != nil {
+		fmt.Println("Error occurred during executing the editor. err:", err)
+		return
+	}
+
+	updatedConfig, _ := os.ReadFile(tempFile.Name())
+
+	updated, err := parseHostConfig(string(updatedConfig), h)
+	if err != nil {
+		fmt.Print("Error occurred during parsing. err:", err)
+		return
+	}
+
+	err = updateHost(db, updated)
+	if err != nil {
+		fmt.Println("Error occurred during updating the cofig. err:", err)
+	} else {
+		fmt.Println("Successfully updating the cofig.")
+	}
+}
+
+func parseHostConfig(content string, original SSHHost) (SSHHost, error) {
+	trimmedContent := strings.TrimSpace(strings.TrimSpace(content))
+	if trimmedContent == "" {
+		return original, fmt.Errorf("There's no change.")
+	}
+
+	updated := original
+	lines := strings.Split(trimmedContent, "\n")
+	foundFields := make(map[string]bool)
+
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line == "" || !strings.Contains(line, "=") {
+			continue
+		}
+
+		parts := strings.SplitN(line, "=", 2)
+		key := strings.ToLower(strings.TrimSpace(parts[0]))
+		val := strings.TrimSpace(parts[1])
+
+		switch key {
+		case "alias":
+			updated.Alias = val
+			if val != "" {
+				foundFields["alias"] = true
+			}
+		case "user":
+			updated.User = val
+			if val != "" {
+				foundFields["user"] = true
+			}
+		case "host":
+			updated.Host = val
+			if val != "" {
+				foundFields["host"] = true
+			}
+		case "port":
+			port, err := strconv.Atoi(val)
+			if err == nil {
+				updated.Port = port
+			}
+		case "auth_type":
+			updated.AuthType = val
+		case "key_path":
+			updated.KeyPath = val
+		}
+	}
+
+	if !foundFields["alias"] || !foundFields["host"] {
+		return original, fmt.Errorf("Alias & Host fields cannot be empty.")
+	}
+	return updated, nil
 }

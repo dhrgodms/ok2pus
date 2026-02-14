@@ -54,7 +54,15 @@ func deleteHost(db *sql.DB, id int) error {
 	return nil
 }
 
-func updateHost(h SSHHost) {}
+func updateHost(db *sql.DB, h SSHHost) error {
+	query := `
+	UPDATE ssh_hosts
+	SET alias=?, host=?, user=?, port=?, auth_type=?, key_path=?
+	WHERE id=?;`
+
+	_, err := db.Exec(query, h.Alias, h.Host, h.User, h.Port, h.AuthType, h.KeyPath, h.ID)
+	return err
+}
 
 func resetDB(db *sql.DB) error {
 	_, err := db.Exec("DELETE FROM ssh_hosts; DELETE FROM sqlite_sequence WHERE name='ssh_hosts';")
