@@ -15,19 +15,21 @@
 
 > A terminal-based SSH connection manager built with Go.
 
-## Features
-
-- SSH 호스트 접속 정보를 로컬 SQLite DB에 저장 및 관리
-- **Password** / **Public Key** 두 가지 인증 방식 지원
-- 인터랙티브 TUI 메뉴를 통한 호스트 추가, 목록 조회, 접속, 삭제
-- DB 초기화(Reset) 및 삭제(Drop) 옵션 제공
-
 ## Installation
+
+### Homebrew (Recommended)
+
+```bash
+brew tap dhrgodms/ok2pus
+brew install ok2pus
+```
+
+### Build from source
 
 ```bash
 git clone https://github.com/dhrgodms/ok2pus.git
 cd ok2pus
-go build -o ok2pus
+go build -o ok2pus ./cmd/ok2pus
 ```
 
 > Requires Go 1.25+
@@ -35,7 +37,7 @@ go build -o ok2pus
 ## Usage
 
 ```bash
-./ok2pus
+ok2pus
 ```
 
 ### Main Menu
@@ -72,7 +74,7 @@ Public Key 인증 시 키 파일 경로를 추가로 입력합니다. (기본값
 | Action    | Description          |
 |-----------|----------------------|
 | `connect` | SSH 접속 실행         |
-| `edit`    | 호스트 정보 수정      |
+| `edit`    | 호스트 정보 수정 (`$EDITOR` 또는 `vim`) |
 | `delete`  | 호스트 삭제 (확인 후) |
 
 ### Options
@@ -81,6 +83,15 @@ Public Key 인증 시 키 파일 경로를 추가로 입력합니다. (기본값
 |------------------|------------------------------------|
 | `Reset Database` | 모든 호스트 데이터 초기화            |
 | `Drop Database`  | DB 파일 삭제 후 재생성              |
+
+## Features
+
+- SSH 호스트 접속 정보를 로컬 SQLite DB에 저장 및 관리
+- **Password** / **Public Key** 두 가지 인증 방식 지원
+- 인터랙티브 TUI 메뉴를 통한 호스트 추가, 목록 조회, 접속, 삭제
+- 시스템 에디터를 통한 호스트 설정 편집
+- Port 범위 검증 (1–65535)
+- DB 초기화(Reset) 및 삭제(Drop) 옵션 제공
 
 ## Data Storage
 
@@ -93,26 +104,38 @@ Public Key 인증 시 키 파일 경로를 추가로 입력합니다. (기본값
 | `user`      | SSH 사용자         | Required     |
 | `port`      | SSH 포트           | `22`         |
 | `auth_type` | 인증 방식          | `Password`   |
-| `key_path`  | 공개키 파일 경로    | -            |
-
-## Tech Stack
-
-- **Go** with [promptui](https://github.com/manifoldco/promptui) — 인터랙티브 TUI
-- **SQLite** via [modernc.org/sqlite](https://pkg.go.dev/modernc.org/sqlite) — CGo-free 순수 Go 드라이버
-- **os/exec** — SSH 프로세스 실행
+| `key_path`  | 공개키 파일 경로    | `~/.ssh/id_rsa` |
 
 ## Project Structure
 
 ```
 ok2pus/
-├── main.go          # Entry point, 메인 메뉴 및 인터랙티브 흐름
-├── connect.go       # SSH 접속 실행 (Password / Public Key)
-├── dbconnect.go     # SQLite DB 초기화, Drop
-├── repository.go    # SSHHost 모델, CRUD 함수
-├── logo.go          # ASCII 로고 출력
+├── cmd/ok2pus/
+│   └── main.go              # Entry point
+├── internal/
+│   ├── model/
+│   │   └── host.go          # SSHHost data model
+│   ├── db/
+│   │   ├── sqlite.go        # DB initialization & drop
+│   │   └── repository.go    # CRUD operations
+│   ├── ssh/
+│   │   └── connect.go       # SSH connection
+│   └── ui/
+│       ├── menu.go          # Host list & action menu
+│       ├── editor.go        # Config editor & parser
+│       ├── host_form.go     # Add new host form
+│       ├── options.go       # Reset & drop options
+│       └── logo.go          # ASCII logo
+├── .goreleaser.yml
 ├── go.mod
 └── go.sum
 ```
+
+## Tech Stack
+
+- **Go** with [promptui](https://github.com/manifoldco/promptui) — Interactive TUI
+- **SQLite** via [modernc.org/sqlite](https://pkg.go.dev/modernc.org/sqlite) — CGo-free pure Go driver
+- **GoReleaser** — Cross-compilation & Homebrew distribution
 
 ## License
 
