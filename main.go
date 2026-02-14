@@ -167,7 +167,6 @@ func showActionMenu(db *sql.DB, host SSHHost) {
 	case "[1] connect":
 		connectHost(host)
 	case "[2] edit":
-		// TODO: implement
 		openEditor(db, host)
 	case "[3] delete":
 		confirmPrompt := promptui.Prompt{
@@ -190,48 +189,13 @@ func showActionMenu(db *sql.DB, host SSHHost) {
 	}
 }
 
-func resetDatabase(db *sql.DB) {
-	confirmPrompt := promptui.Prompt{
-		Label:     "Are you sure you want to RESET all data?",
-		IsConfirm: true,
-	}
-
-	_, err := confirmPrompt.Run()
-	if err != nil {
-		fmt.Println("Reset cancelled.")
-		return
-	}
-
-	err = resetDB(db)
-	if err != nil {
-		fmt.Printf("Error during reset: %v\n", err)
-	} else {
-		fmt.Println("Successfully reset database. All host information has been cleared.")
-	}
-}
-
-func dropDatabase(db *sql.DB) {
-	confirmPrompt := promptui.Prompt{
-		Label:     "Are you sure you want to DROP the database?",
-		IsConfirm: true,
-	}
-
-	_, err := confirmPrompt.Run()
-	if err != nil {
-		fmt.Println("Drop cancelled.")
-		return
-	}
-
-	dropDB(db)
-}
-
 type editFinishedMsg struct {
 	content string
 	err     error
 }
 
 func openEditor(db *sql.DB, h SSHHost) {
-	currentConfig := fmt.Sprintf("alias=%s\nhost=%s\nuser=%s\nport=%d\nauth_type=%s\nkey_path=%s", h.Alias, h.Host, h.User, h.Port, h.AuthType, h.KeyPath)
+	currentConfig := fmt.Sprintf("alias=%s\nhost=%s\nuser=%s\nport=%d\nauth_type(Password/Public Key)=%s\nkey_path=%s", h.Alias, h.Host, h.User, h.Port, h.AuthType, h.KeyPath)
 
 	tempFile, err := os.CreateTemp("", "host-config-*.txt")
 	if err != nil {
