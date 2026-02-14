@@ -95,6 +95,9 @@ func parseHostConfig(content string, original model.SSHHost) (model.SSHHost, err
 		case "port":
 			port, err := strconv.Atoi(val)
 			if err == nil {
+				if port < 1 || port > 65535 {
+					return original, fmt.Errorf("port must be between 1 and 65535, got %d", port)
+				}
 				updated.Port = port
 			}
 		case "auth_type":

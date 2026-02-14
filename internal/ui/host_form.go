@@ -52,7 +52,21 @@ func AddNewHostInteractive(d *sql.DB) {
 	promptHost := promptui.Prompt{Label: "Host Address", Validate: validate}
 	host, _ := promptHost.Run()
 
-	promptPort := promptui.Prompt{Label: "Port", Default: "22", Validate: validate}
+	validatePort := func(input string) error {
+		if len(strings.TrimSpace(input)) < 1 {
+			return fmt.Errorf("this field is required")
+		}
+		port, err := strconv.Atoi(strings.TrimSpace(input))
+		if err != nil {
+			return fmt.Errorf("port must be a number")
+		}
+		if port < 1 || port > 65535 {
+			return fmt.Errorf("port must be between 1 and 65535")
+		}
+		return nil
+	}
+
+	promptPort := promptui.Prompt{Label: "Port", Default: "22", Validate: validatePort}
 	portStr, _ := promptPort.Run()
 	port, _ := strconv.Atoi(portStr)
 
