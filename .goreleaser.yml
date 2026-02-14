@@ -1,0 +1,32 @@
+version: 2
+
+builds:
+  - main: ./cmd/ok2pus
+    binary: ok2pus
+    goos:
+      - darwin
+      - linux
+    goarch:
+      - amd64
+      - arm64
+
+archives:
+  - formats:
+      - tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+
+homebrew_casks:
+  - repository:
+      owner: dhrgodms
+      name: homebrew-ok2pus
+    homepage: "https://github.com/dhrgodms/ok2pus"
+    description: "Terminal-based SSH connection manager"
+    binaries:
+      - ok2pus
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
