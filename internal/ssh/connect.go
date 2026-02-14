@@ -1,13 +1,15 @@
-package main
+package ssh
 
 import (
 	"fmt"
 	"os"
 	"os/exec"
 	"strconv"
+
+	"ok2pus/internal/model"
 )
 
-func connectHost(h SSHHost) {
+func ConnectHost(h model.SSHHost) {
 	var cmd *exec.Cmd
 
 	dest := fmt.Sprintf("%s@%s", h.User, h.Host)

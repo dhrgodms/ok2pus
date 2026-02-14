@@ -1,4 +1,4 @@
-module oktopus
+module ok2pus
 
 go 1.25.7
 

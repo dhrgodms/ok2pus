@@ -1,13 +1,36 @@
-package main
+package ui
 
 import (
 	"database/sql"
 	"fmt"
 
+	"ok2pus/internal/db"
+
 	"github.com/manifoldco/promptui"
 )
 
-func resetDatabase(db *sql.DB) {
+func ShowOptionsMenu(d *sql.DB) {
+	prompt := promptui.Select{
+		Label:        "Select Options",
+		Items:        []string{"[1] Reset Database", "[2] Drop Database", "[3] Back"},
+		HideSelected: true,
+	}
+
+	_, result, err := prompt.Run()
+
+	if err != nil || result == "[3] Back" {
+		return
+	}
+
+	switch result {
+	case "[1] Reset Database":
+		resetDatabase(d)
+	case "[2] Drop Database":
+		dropDatabase(d)
+	}
+}
+
+func resetDatabase(d *sql.DB) {
 	confirmPrompt := promptui.Prompt{
 		Label:     "Are you sure you want to RESET all data?",
 		IsConfirm: true,
@@ -19,7 +42,7 @@ func resetDatabase(db *sql.DB) {
 		return
 	}
 
-	err = resetDB(db)
+	err = db.ResetDB(d)
 	if err != nil {
 		fmt.Printf("Error during reset: %v\n", err)
 	} else {
@@ -27,7 +50,7 @@ func resetDatabase(db *sql.DB) {
 	}
 }
 
-func dropDatabase(db *sql.DB) {
+func dropDatabase(d *sql.DB) {
 	confirmPrompt := promptui.Prompt{
 		Label:     "Are you sure you want to DROP the database?",
 		IsConfirm: true,
@@ -39,5 +62,5 @@ func dropDatabase(db *sql.DB) {
 		return
 	}
 
-	dropDB(db)
+	db.DropDB(d)
 }

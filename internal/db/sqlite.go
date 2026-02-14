@@ -1,4 +1,4 @@
-package main
+package db
 
 import (
 	"database/sql"
@@ -6,26 +6,24 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+
+	_ "modernc.org/sqlite"
 )
 
-func initDB() *sql.DB {
-	// 1. 사용자 홈 디렉토리 하위에 db 파일 저장 경로 설정
+func InitDB() *sql.DB {
 	home, _ := os.UserHomeDir()
 	dbDir := filepath.Join(home, ".ok2pus")
 	dbPath := filepath.Join(dbDir, "hosts.db")
 
-	// 2. 폴더 없으면 생성
 	if _, err := os.Stat(dbDir); os.IsNotExist(err) {
 		os.MkdirAll(dbDir, 0o755)
 	}
 
-	// 3. sqlite 연결
 	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// 4. table 초기화
 	query := `
 	CREATE TABLE IF NOT EXISTS ssh_hosts (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -33,7 +31,7 @@ func initDB() *sql.DB {
 		host TEXT,
 		user TEXT,
 		port INTEGER DEFAULT 22,
-		
+
 		auth_type TEXT DEFAULT "Password",
 		key_path TEXT
 	);`
@@ -45,7 +43,7 @@ func initDB() *sql.DB {
 	return db
 }
 
-func dropDB(db *sql.DB) {
+func DropDB(db *sql.DB) {
 	home, _ := os.UserHomeDir()
 	dbDir := filepath.Join(home, ".ok2pus")
 	dbPath := filepath.Join(dbDir, "hosts.db")
@@ -58,6 +56,6 @@ func dropDB(db *sql.DB) {
 		fmt.Printf("Successfully deleted Database file.")
 	}
 
-	*db = *initDB()
+	*db = *InitDB()
 	fmt.Println("New database file has been initialized.")
 }
