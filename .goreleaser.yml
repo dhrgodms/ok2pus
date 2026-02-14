@@ -23,6 +23,12 @@ homebrew_casks:
     description: "Terminal-based SSH connection manager"
     binaries:
       - ok2pus
+    hooks:
+      post:
+        install: |
+          if OS.mac?
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/ok2pus"]
+          end
 
 changelog:
   sort: asc
