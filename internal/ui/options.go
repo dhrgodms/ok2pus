@@ -2,18 +2,17 @@ package ui
 
 import (
 	"database/sql"
-	"fmt"
 
 	"ok2pus/internal/db"
 
+	"github.com/fatih/color"
 	"github.com/manifoldco/promptui"
 )
 
 func ShowOptionsMenu(d *sql.DB) {
 	prompt := promptui.Select{
-		Label:        "Select Options",
-		Items:        []string{"[1] Reset Database", "[2] Drop Database", "[3] Back"},
-		HideSelected: true,
+		Label: "Select Options",
+		Items: []string{"[1] Reset Database", "[2] Drop Database", "[3] Back"},
 	}
 
 	_, result, err := prompt.Run()
@@ -38,27 +37,28 @@ func resetDatabase(d *sql.DB) {
 
 	_, err := confirmPrompt.Run()
 	if err != nil {
-		fmt.Println("Reset cancelled.")
+		color.Red("Reset cancelled.")
 		return
 	}
 
 	err = db.ResetDB(d)
 	if err != nil {
-		fmt.Printf("Error during reset: %v\n", err)
+		color.Red("Error during reset: %v\n", err)
 	} else {
-		fmt.Println("Successfully reset database. All host information has been cleared.")
+		color.New(color.Bold, color.FgGreen).Print("Successfully reset database. ")
+		color.White("All host information has been cleared.\n")
 	}
 }
 
 func dropDatabase(d *sql.DB) {
 	confirmPrompt := promptui.Prompt{
-		Label:     "Are you sure you want to DROP the database?",
+		Label:     "Are you sure you want to DROP the database?(remove db file)",
 		IsConfirm: true,
 	}
 
 	_, err := confirmPrompt.Run()
 	if err != nil {
-		fmt.Println("Drop cancelled.")
+		color.Red("Drop cancelled.")
 		return
 	}
 

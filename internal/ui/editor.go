@@ -10,6 +10,8 @@ import (
 
 	"ok2pus/internal/db"
 	"ok2pus/internal/model"
+
+	"github.com/fatih/color"
 )
 
 func OpenEditor(d *sql.DB, h model.SSHHost) {
@@ -17,7 +19,7 @@ func OpenEditor(d *sql.DB, h model.SSHHost) {
 
 	tempFile, err := os.CreateTemp("", "host-config-*.txt")
 	if err != nil {
-		fmt.Println("Failed to create a temp file. err:", err)
+		color.Red("Failed to create a temp file. err: %v\n", err)
 		return
 	}
 	defer os.Remove(tempFile.Name())
@@ -36,7 +38,7 @@ func OpenEditor(d *sql.DB, h model.SSHHost) {
 
 	err = cmd.Run()
 	if err != nil {
-		fmt.Println("Error occurred during executing the editor. err:", err)
+		color.Red("Error occurred during executing the editor. err: %v\n", err)
 		return
 	}
 
@@ -44,15 +46,15 @@ func OpenEditor(d *sql.DB, h model.SSHHost) {
 
 	updated, err := parseHostConfig(string(updatedConfig), h)
 	if err != nil {
-		fmt.Print("Error occurred during parsing. err:", err)
+		color.Red("Error occurred during parsing. err: %v\n", err)
 		return
 	}
 
 	err = db.UpdateHost(d, updated)
 	if err != nil {
-		fmt.Println("Error occurred during updating the cofig. err:", err)
+		color.Red("Error occurred during updating the cofig. err: %v\n", err)
 	} else {
-		fmt.Println("Successfully updating the cofig.")
+		color.New(color.FgGreen, color.Bold).Println("Successfully updating the cofig.")
 	}
 }
 
