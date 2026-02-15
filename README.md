@@ -33,13 +33,13 @@ brew tap dhrgodms/ok2pus
 brew install ok2pus
 ```
 
-### 업그레이드
+### Upgrade
 
 ```bash
 brew upgrade ok2pus
 ```
 
-### 버전 확인
+### Check version
 
 ```bash
 ok2pus --version
