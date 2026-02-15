@@ -2,11 +2,11 @@ package db
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 
+	"github.com/fatih/color"
 	_ "modernc.org/sqlite"
 )
 
@@ -51,11 +51,11 @@ func DropDB(db *sql.DB) {
 	err := os.Remove(dbPath)
 
 	if err != nil {
-		fmt.Printf("Failed to delete DB file: %v\n", err)
+		color.Red("Failed to delete DB file: %v\n", err)
 	} else {
-		fmt.Printf("Successfully deleted Database file.")
+		color.New(color.FgGreen, color.Bold).Println("Successfully deleted Database file.")
 	}
 
 	*db = *InitDB()
-	fmt.Println("New database file has been initialized.")
+	color.New(color.FgYellow, color.Bold).Println("New database file has been initialized.")
 }

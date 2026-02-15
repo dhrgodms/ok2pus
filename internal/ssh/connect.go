@@ -7,6 +7,8 @@ import (
 	"strconv"
 
 	"ok2pus/internal/model"
+
+	"github.com/fatih/color"
 )
 
 func ConnectHost(h model.SSHHost) {
@@ -27,12 +29,16 @@ func ConnectHost(h model.SSHHost) {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	fmt.Printf("\n--- Connecting to [%s] (%s) ---\n", h.Alias, h.Host)
+	fmt.Println()
+	color.New(color.Bold, color.BgCyan).Printf("--- Connecting to [%s] (%s) ---", h.Alias, h.Host)
+	fmt.Println()
 
 	err := cmd.Run()
 	if err != nil {
-		fmt.Printf("\n[SSH Error] %v\n", err)
+		color.Red("\n[SSH Error] %v\n", err)
 	}
 
-	fmt.Printf("\n--- Connection to [%s] closed ---\n", h.Alias)
+	fmt.Println()
+	color.New(color.Bold, color.BgCyan).Printf("--- Connection to [%s] closed ---", h.Alias)
+	fmt.Println()
 }
