@@ -15,20 +15,14 @@ archives:
       - tar.gz
     name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
 
-homebrew_casks:
+brews:
   - repository:
       owner: dhrgodms
       name: homebrew-ok2pus
     homepage: "https://github.com/dhrgodms/ok2pus"
     description: "Terminal-based SSH connection manager"
-    binaries:
-      - ok2pus
-    hooks:
-      post:
-        install: |
-          if OS.mac?
-            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/ok2pus"]
-          end
+    install: |
+      bin.install "ok2pus"
 
 changelog:
   sort: asc
