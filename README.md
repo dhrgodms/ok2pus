@@ -17,7 +17,8 @@
 
 ## Privacy & Security
 
-> [!INFO] ok2pus는 외부 서버와 일체의 네트워크 통신을 하지 않습니다.
+> [!NOTE]
+> ok2pus는 외부 서버와 일체의 네트워크 통신을 하지 않습니다.
 
 - 모든 호스트 정보는 사용자 로컬 디스크(`~/.ok2pus/hosts.db`)에만 저장됩니다.
 - 원격 서버 전송, 분석 수집, 텔레메트리 기능이 존재하지 않습니다.
@@ -154,7 +155,8 @@ ok2pus/
 
 ## Privacy & Security
 
-> [!INFO] ok2pus does not communicate with any external server.
+> [!NOTE]
+> ok2pus does not communicate with any external server.
 
 - All host data is stored only on your local disk (`~/.ok2pus/hosts.db`).
 - There is no remote transmission, analytics collection, or telemetry of any kind.
