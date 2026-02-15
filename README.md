@@ -61,16 +61,17 @@ ok2pus
 
 ### Add New Host
 
-`Add New Host`를 선택하면 인증 방식을 먼저 고른 뒤, 호스트 정보를 순서대로 입력합니다.
+`Add New Host`를 선택하면 별칭을 먼저 입력한 뒤, 인증 방식과 호스트 정보를 순서대로 입력합니다.
 
 ```
+? Alias:       my-server
+
 ? Select ssh authentication method:
   > [1] Password
     [2] Public Key
 
-? Alias:       my-server
-? Host Address: 192.168.0.10
 ? Username:     root
+? Host Address: 192.168.0.10
 ? Port:         22
 ```
 
@@ -199,16 +200,17 @@ ok2pus
 
 ### Add New Host
 
-Select `Add New Host`, choose an authentication method, then enter the host details.
+Select `Add New Host`, enter an alias first, then choose an authentication method and fill in the host details.
 
 ```
+? Alias:       my-server
+
 ? Select ssh authentication method:
   > [1] Password
     [2] Public Key
 
-? Alias:       my-server
-? Host Address: 192.168.0.10
 ? Username:     root
+? Host Address: 192.168.0.10
 ? Port:         22
 ```
 
