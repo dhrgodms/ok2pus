@@ -10,7 +10,14 @@ import (
 	"github.com/manifoldco/promptui"
 )
 
+var version = "dev"
+
 func main() {
+	if len(os.Args) > 1 && (os.Args[1] == "--version" || os.Args[1] == "-v") {
+		fmt.Printf("ok2pus v%s\n", version)
+		return
+	}
+
 	d := db.InitDB()
 	defer d.Close()
 	ui.ShowLogo()

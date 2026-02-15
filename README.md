@@ -33,6 +33,18 @@ brew tap dhrgodms/ok2pus
 brew install ok2pus
 ```
 
+### 업그레이드
+
+```bash
+brew upgrade ok2pus
+```
+
+### 버전 확인
+
+```bash
+ok2pus --version
+```
+
 ### Build from source
 
 ```bash
@@ -170,6 +182,18 @@ ok2pus/
 ```bash
 brew tap dhrgodms/ok2pus
 brew install ok2pus
+```
+
+### Upgrade
+
+```bash
+brew upgrade ok2pus
+```
+
+### Check version
+
+```bash
+ok2pus --version
 ```
 
 ### Build from source

@@ -3,6 +3,8 @@ version: 2
 builds:
   - main: ./cmd/ok2pus
     binary: ok2pus
+    ldflags:
+      - -s -w -X main.version={{.Version}}
     goos:
       - darwin
       - linux
