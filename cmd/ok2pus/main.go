@@ -18,7 +18,7 @@ func main() {
 	for {
 		prompt := promptui.Select{
 			Label:        "Select",
-			Items:        []string{"[1] List Hosts", "[2] Add New Host", "[3] Options", "[q] Quit"},
+			Items:        []string{"[1] List Hosts", "[2] Add New Host", "[3] Options", "[4] Quit"},
 			HideSelected: true,
 		}
 
@@ -38,7 +38,7 @@ func main() {
 			ui.AddNewHostInteractive(d)
 		case "[3] Options":
 			ui.ShowOptionsMenu(d)
-		case "[q] Quit":
+		case "[4] Quit":
 			fmt.Println("\nGoodbye!")
 			return
 		}
