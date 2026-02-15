@@ -59,3 +59,13 @@ func ResetDB(db *sql.DB) error {
 	_, err := db.Exec("DELETE FROM ssh_hosts; DELETE FROM sqlite_sequence WHERE name='ssh_hosts';")
 	return err
 }
+
+func ExistsAlias(d *sql.DB, alias string) bool {
+	var exists bool
+	query := "SELECT EXISTS(SELECT 1 FROM ssh_hosts WHERE alias = ?)"
+	err := d.QueryRow(query, alias).Scan(&exists)
+	if err != nil {
+		return false
+	}
+	return exists
+}

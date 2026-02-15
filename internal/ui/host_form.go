@@ -2,6 +2,7 @@ package ui
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -20,6 +21,8 @@ func AddNewHostInteractive(d *sql.DB) {
 		return nil
 	}
 
+	alias := promptNewAlias(d)
+
 	promptAuth := promptui.Select{
 		Label:        "Select ssh authentication method",
 		Items:        []string{"[1] Password", "[2] Public Key", "[3] Back"},
@@ -30,9 +33,6 @@ func AddNewHostInteractive(d *sql.DB) {
 	if authErr != nil || authResult == "[3] Back" {
 		return
 	}
-
-	promptAlias := promptui.Prompt{Label: "Alias", Validate: validate}
-	alias, _ := promptAlias.Run()
 
 	var path string
 	var auth string
@@ -80,4 +80,31 @@ func AddNewHostInteractive(d *sql.DB) {
 	} else {
 		fmt.Printf("Successfully Added!")
 	}
+}
+
+func promptNewAlias(d *sql.DB) string {
+	validate := func(input string) error {
+		if len(input) < 1 {
+			return errors.New("Alias cannot be empty.")
+		}
+
+		if db.ExistsAlias(d, input) {
+			return errors.New("The alias already exists. Please choose another one.")
+		}
+		return nil
+	}
+
+	prompt := promptui.Prompt{
+		Label:    "Alias(title)",
+		Validate: validate,
+		Templates: &promptui.PromptTemplates{
+			Success: "",
+		},
+	}
+
+	result, err := prompt.Run()
+	if err != nil {
+		return ""
+	}
+	return result
 }
