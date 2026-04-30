@@ -30,7 +30,8 @@ func ConnectHost(h model.SSHHost) {
 	cmd.Stderr = os.Stderr
 
 	fmt.Println()
-	color.New(color.Bold, color.BgCyan).Printf("--- Connecting to [%s] (%s) ---", h.Alias, h.Host)
+	color.New(color.Bold, color.BgCyan, color.FgBlack).Printf("------------- Connecting to [%s] (%s) -------------", h.Alias, h.Host)
+	fmt.Println()
 	fmt.Println()
 
 	err := cmd.Run()
@@ -39,6 +40,7 @@ func ConnectHost(h model.SSHHost) {
 	}
 
 	fmt.Println()
-	color.New(color.Bold, color.BgCyan).Printf("--- Connection to [%s] closed ---", h.Alias)
+	color.New(color.Bold, color.BgWhite, color.FgBlack).Printf("--------- Closed connection to [%s] (%s) ---------", h.Alias, h.Host)
+	fmt.Println()
 	fmt.Println()
 }
